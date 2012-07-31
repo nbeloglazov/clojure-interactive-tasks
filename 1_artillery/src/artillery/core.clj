@@ -38,26 +38,30 @@
           (advance target falling-speed))))
 
 (defn missile-speed-from-angle [angle]
-  [(* (Math/cos angle) missile-speed)
-   (* (Math/sin angle) missile-speed -1)])
+  [(* (cos angle) missile-speed)
+   (* (sin angle) missile-speed -1)])
 
 (defn hit? [m-x m-y t-x t-y]
   (< (dist m-x m-y t-x t-y) dead-dist))
 
+(defn angle [[x y]]
+  (atan2 y x))
+
 (defn update-missile [target missile solution]
   (let [[m-x m-y] (:pos @missile)
         [t-x t-y] (:pos @target)]
-    (cond (and (not (nil? m-x))
-               (hit? m-x m-y t-x t-y))
-         (do (reset! missile initial-missile)
-             (swap! target assoc :status :dead))
-         (= initial-target @target)
-         (reset! missile {:pos missile-initial-pos
-                          :speed (missile-speed-from-angle (solution))})
-         (not (or (nil? m-x) (inside-border? m-x m-y)))
-         (reset! missile initial-missile)
-         (not (nil? m-x))
-         (advance missile (:speed @missile)))))
+    (cond
+      (= initial-target @target)
+      (reset! missile {:pos missile-initial-pos
+                       :speed (missile-speed-from-angle (solution))})
+      (and (not (nil? m-x))
+           (hit? m-x m-y t-x t-y))
+      (do (reset! missile initial-missile)
+          (swap! target assoc :status :dead))
+      (not (or (nil? m-x) (inside-border? m-x m-y)))
+      (reset! missile initial-missile)
+      (not (nil? m-x))
+      (advance missile (:speed @missile)))))
 
 (defn update-fn [solution]
   (fn [{:keys [target missile]}]
@@ -67,6 +71,11 @@
 (defn draw-target [{:keys [status pos]}]
   (push-matrix)
   (translate pos)
+  (->> (if (= status :live)
+         target-speed
+         falling-speed)
+       angle
+       rotate)
   (stroke-weight 3)
   (line -20 0 20 0)
   (line -25 -5 -20 0)
@@ -74,10 +83,12 @@
   (line -10 5 5 0)
   (pop-matrix))
 
-(defn draw-missile [{:keys [pos]}]
+(defn draw-missile [{:keys [pos speed]}]
   (when-not (nil? pos)
+    (stroke-weight 2)
     (push-matrix)
     (translate pos)
+    (rotate (angle speed))
     (line -10 0 10 0)
     (line -10 -2 -10 2)
     (line 2 2 10 0)
@@ -89,8 +100,6 @@
   (fill 0)
   (draw-target @target)
   (draw-missile @missile))
-
-
 
 (defn map-by-fn [fn keys]
   (into {} (map #(vector % (fn %)) keys)))
@@ -106,10 +115,9 @@
   (let [update (update-fn solution)
         update #(dotimes [_ 3] (update %))]
     (sketch
-      :title "artillery"
-      :setup setup
-      :draw #(doto (state-to-map) update draw)
-      :size [800 600])))
-
+     :title "Artillery"
+     :setup setup
+     :draw #(doto (state-to-map) update draw)
+     :size [800 600])))
 
 (run (fn [] (- (* 0.5 Math/PI) (Math/asin 0.5))))
