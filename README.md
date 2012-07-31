@@ -1,0 +1,1 @@
+Set of animated tasks to be solved by implementing clojure functions.
