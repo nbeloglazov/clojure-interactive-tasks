@@ -84,11 +84,11 @@
     (update-player player)
     (update-missile target missile player solution)))
 
-(defn draw-plane [{:keys [status pos]}]
+(defn draw-plane [{:keys [status pos speed]}]
   (push-matrix)
   (translate pos)
   (->> (if (= status :live)
-         target-speed
+         speed
          falling-speed)
        angle
        rotate)
