@@ -11,16 +11,15 @@
 (def initial-missile {:pos nil
                       :speed nil})
 
-(def initial-state {:target (atom nil)
-                    :missile (atom initial-missile)})
-
 (defn inside-border? [x y]
   (and (<= 0 x (width))
        (<= 0 y (height))))
 
 (defn advance [object speed]
-  (println @object speed)
   (swap! object update-in [:pos] #(map + % speed)))
+
+(defn advance-speed [object accel]
+  (swap! object update-in [:speed] #(map + % accel)))
 
 (defn missile-speed-from-angle [angle]
   [(* (cos angle) missile-speed)
@@ -71,7 +70,8 @@
       (do (reset! missile initial-missile)
           (swap! target assoc :fired false))
       (not (nil? m-x))
-      (advance missile (:speed @missile)))))
+      (do (advance missile (:speed @missile))
+          (advance-speed missile (:missile-accel @player))))))
 
 (defn update-player [player]
   (when-not (apply inside-border? (:pos @player))
@@ -134,9 +134,10 @@
 (defn setup [target-gen player]
   (smooth)
   (frame-rate 10)
-  (->> (assoc initial-state
-         :target-gen target-gen
-         :player (atom player))
+  (->> {:target (atom nil)
+        :missile (atom initial-missile)
+        :target-gen target-gen
+        :player (atom player)}
        seq
        flatten
        (apply set-state!)))
@@ -150,12 +151,47 @@
      :draw #(do (update) (draw))
      :size [800 600])))
 
-(run (fn [] {:pos [20 10]
-             :speed [5 0]
-             :status :live
-             :draw draw-plane})
-     {:pos [400 600]
-      :speed [0 0]
-      :type :dynamic}
-     #_(fn [] (- (* 0.5 Math/PI) (Math/asin 0.5)))
-     (fn [p-x p-y t-x t-y] (angle [(- t-x p-x) (- p-y t-y)])))
+(def plane-static
+  (partial run
+           (fn [] {:pos [0 10]
+                   :speed [5 0]
+                   :status :live
+                   :draw draw-plane})
+           {:pos [400 600]
+            :speed [0 0]
+            :missile-accel [0 0]
+            :type :static}))
+
+(def plane-dynamic
+  (partial run
+           (fn [] {:pos [0 (+ 10 (rand-int 400))]
+                   :speed [5 0]
+                   :status :live
+                   :draw draw-plane})
+           {:pos [400 600]
+            :speed [5 0]
+            :missile-accel [0 0]
+            :type :dynamic}))
+
+(def ufo-static
+  (partial run
+           (fn [] {:pos [50 50]
+                   :speed [0 0]
+                   :status :live
+                   :draw draw-plane})
+           {:pos [400 600]
+            :speed [0 0]
+            :missile-accel [0 0.1]
+            :type :static}))
+
+(def ufo-dynamic
+  (partial run
+           (fn [] {:pos [(+ 10 (rand-int 780)) (+ 10 (rand-int 400))]
+                   :speed [0 0]
+                   :status :live
+                   :draw draw-plane})
+           {:pos [400 600]
+            :speed [5 0]
+            :missile-accel [0 0.1]
+            :type :dynamic}))
+
