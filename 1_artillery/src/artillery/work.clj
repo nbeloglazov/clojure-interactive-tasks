@@ -64,3 +64,8 @@
 ;;; You need to write function that takes 4 arguments: your position (x, y)  and UFO's position (x, y).
 ; (ufo-dynamic YOUR_SOLUTION)
 
+
+
+;;; If you're still full of energy I propose you to add wind to simulation.
+;;; Open core.clj file and try to figure out (it's not very easy) where missile speed is changed and try to add wind.
+;;; And solve tasks with new obstacles.
