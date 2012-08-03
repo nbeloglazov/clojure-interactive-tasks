@@ -84,14 +84,17 @@
     (update-player player)
     (update-missile target missile player solution)))
 
-(defn draw-plane [{:keys [status pos speed]}]
-  (push-matrix)
+(defn prepare-matrix [status pos speed]
   (translate pos)
   (->> (if (= status :live)
          speed
          falling-speed)
        angle
-       rotate)
+       rotate))
+
+(defn draw-plane [{:keys [status pos speed]}]
+  (push-matrix)
+  (prepare-matrix status pos speed )
   (stroke-weight 3)
   (line -20 0 20 0)
   (line -25 5 -20 0)
@@ -99,8 +102,19 @@
   (line -10 5 5 0)
   (pop-matrix))
 
+(defn draw-ufo [{:keys [status pos speed]}]
+  (push-matrix)
+  (prepare-matrix status pos speed)
+  (scale 0.7)
+  (stroke-weight 3)
+  (let [points [[0 0] [-20 0] [-20 10] [-10 20] [10 20] [20 10] [20 0] [0 0] [20 -15] [10 0] [0 0] [-20 -15] [-10 -0]]]
+    (doseq [pair (partition 2 1 points)]
+      (apply line (flatten pair))))
+  (point 8 10)
+  (point -8 10)
+  (pop-matrix))
+
 (defn draw-missile [{:keys [pos speed]}]
-  (println pos)
   (when-not (nil? pos)
     (stroke-weight 2)
     (push-matrix)
@@ -151,7 +165,7 @@
   (let [update (update-fn solution)
         update #(dotimes [_ 3] (update))]
     (sketch
-     :title "Artillery"
+     :title "Air defense"
      :setup (partial setup target-gen player)
      :draw #(do (update) (draw))
      :size [800 600])))
@@ -183,7 +197,7 @@
            (fn [] {:pos [500 300]
                    :speed [0 0]
                    :status :live
-                   :draw draw-plane})
+                   :draw draw-ufo})
            {:pos [0 0]
             :speed [0 0]
             :missile-accel [0 -0.1]
@@ -194,7 +208,7 @@
            (fn [] {:pos [(+ 10 (rand-int (- w 20))) (- h 10 (rand-int 400))]
                    :speed [0 0]
                    :status :live
-                   :draw draw-plane})
+                   :draw draw-ufo})
            {:pos [(/ w 2) 0]
             :speed [2.5 0]
             :missile-accel [0 -0.1]
