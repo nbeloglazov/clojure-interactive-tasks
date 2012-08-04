@@ -15,6 +15,9 @@
   (and (<= 0 x (width))
        (<= 0 y (height))))
 
+(defn rand-range [from to]
+  (+ from (rand-int (- to from))))
+
 (defn advance [object speed]
   (swap! object update-in [:pos] #(map + % speed)))
 
@@ -22,8 +25,10 @@
   (swap! object update-in [:speed] #(map + % accel)))
 
 (defn missile-speed-from-angle [angle]
-  [(* (cos angle) missile-speed)
-   (* (sin angle) missile-speed)])
+  (if (nil? angle)
+    [0 -100]
+    [(* (cos angle) missile-speed)
+     (* (sin angle) missile-speed)]))
 
 (defn hit? [m-x m-y t-x t-y]
   (< (dist m-x m-y t-x t-y) dead-dist))
@@ -172,7 +177,7 @@
 
 (def plane-static
   (partial run
-           (fn [] {:pos [0 (- h 10)]
+           (fn [] {:pos [0 500]
                    :speed [5 0]
                    :status :live
                    :draw draw-plane})
@@ -205,7 +210,7 @@
 
 (def ufo-dynamic
   (partial run
-           (fn [] {:pos [(+ 10 (rand-int (- w 20))) (- h 10 (rand-int 400))]
+           (fn [] {:pos [(+ 10 (rand-int (- w 20))) (rand-range 100 500)]
                    :speed [0 0]
                    :status :live
                    :draw draw-ufo})
