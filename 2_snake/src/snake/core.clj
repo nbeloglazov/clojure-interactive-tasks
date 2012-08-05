@@ -27,15 +27,21 @@
     [(mod (+ new-x w) w)
      (mod (+ new-y h) h)]))
 
-(defn rand-free-cell [{:keys [body]} apples]
+(defn rand-free-cell [{:keys [body]} apples walls]
   (let [w (board-width)
         h (board-height)
         body (set body)]
     (->> #(vector (rand-int w) (rand-int h))
          repeatedly
          (remove #(or (apples %)
-                      (body %)))
+                      (body %)
+                      (walls %)))
          first)))
+
+(defn dead? [head body walls]
+  (boolean
+   (or (walls head)
+       (some #(= head %) body))))
 
 (defmacro fn-state [vars & body]
   `(fn [] (let ~(vec (apply concat
@@ -44,26 +50,32 @@
             ~@body)))
 
 
+(defn add-apple [snake apples walls]
+  (let [new-apple (rand-free-cell @snake @apples @walls)]
+    (swap! apples conj new-apple)))
 
-(defn update-apples [snake apples]
-  (if (empty? @apples)
-    (swap! apples conj (rand-free-cell @snake @apples))))
+(defn update-apples [snake apples walls]
+  (dotimes [_ (- (:num (meta @apples))
+                 (count @apples))]
+    (add-apple snake apples walls)))
 
-(defn update-snake [snake apples dir]
+(defn update-snake [snake dir apples walls]
   (let [{:keys [body grow?]} @snake
         new-head (neib-cell (first body) dir)
         ate? (@apples new-head)
-        new-body (cons new-head
-                       ((if (and ate? grow?) identity butlast) body))]
+        new-body (if-not (dead? new-head body @walls)
+                   (cons new-head
+                         ((if (and ate? grow?) identity butlast) body))
+                   [(rand-free-cell {:body []} @apples @walls)])]
     (swap! apples disj new-head)
     (swap! snake assoc :body new-body)))
 
 (defn update-fn [solution]
-  (fn-state [snake apples]
+  (fn-state [snake apples walls]
     (let [new-dir (solution (first (:body @snake))
                             (first @apples))]
-      (update-snake snake apples new-dir))
-    (update-apples snake apples)))
+      (update-snake snake new-dir apples walls))
+    (update-apples snake apples walls)))
 
 (defn draw-snake [{:keys [body]}]
   (fill 0 255 0)
@@ -75,26 +87,35 @@
   (doseq [apple apples]
     (draw-cell ellipse apple)))
 
+(defn draw-walls [walls]
+  (fill 139 69 19)
+  (doseq [wall walls]
+    (draw-cell rect wall)))
+
 (def draw
-  (fn-state [snake apples]
+  (fn-state [snake apples walls]
     (background 200)
     (ellipse-mode :corner)
     (draw-snake @snake)
-    (draw-apples @apples)))
+    (draw-apples @apples)
+    (draw-walls @walls)))
 
-(defn setup []
-  (smooth)
-  (set-state!
-   :snake (atom {:body [[0 0]]
-                 :grow? true})
-   :apples (atom #{(rand-free-cell {:body [[0 0]]} #{})}))
-  (frame-rate 10))
+(defn setup-fn [num-of-apples walls grow?]
+  (fn []
+   (smooth)
+   (set-state!
+    :snake (atom {:body [[0 0]]
+                  :grow? grow?})
+    :walls (atom walls)
+    :apples (atom (with-meta #{} {:num num-of-apples})))
+   (->> [:snake :apples :walls] (map state) (apply update-apples))
+   (frame-rate 10)))
 
-(defn run [solution]
+(defn run [num-of-apples walls grow? solution]
   (let [update (update-fn solution)]
     (sketch
      :title "snake"
-     :setup setup
+     :setup (setup-fn num-of-apples walls grow?)
      :draw #(do (update) (draw))
      :size [800 600])))
 
@@ -105,5 +126,5 @@
         (< (second snake-pos) (second apple-pos)) :down
         :else :up))
 
-(run make-move)
+(run 1 #{} false make-move)
 
