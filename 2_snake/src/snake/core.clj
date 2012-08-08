@@ -1,17 +1,15 @@
 (ns snake.core
   (:use quil.core))
 
+(def w 800)
+(def h 600)
 (def cell-size 20)
+(def board-width (/ w cell-size))
+(def board-height (/ h cell-size))
 (def dirs {:right [1 0]
            :left [-1 0]
            :up [0 -1]
            :down [0 1]})
-
-(defn board-width []
-  (quot (width) cell-size))
-
-(defn board-height []
-  (quot (height) cell-size))
 
 (defn to-real-coords [cell]
   (map #(* cell-size %) cell))
@@ -21,17 +19,13 @@
     (draw-fn real-x real-y cell-size cell-size)))
 
 (defn neib-cell [cell dir]
-  (let [[new-x new-y] (map + cell (dirs dir))
-        w (board-width)
-        h (board-height)]
-    [(mod (+ new-x w) w)
-     (mod (+ new-y h) h)]))
+  (let [[new-x new-y] (map + cell (dirs dir))]
+    [(mod (+ new-x board-width) board-width)
+     (mod (+ new-y board-height) board-height)]))
 
 (defn rand-free-cell [{:keys [body]} apples walls]
-  (let [w (board-width)
-        h (board-height)
-        body (set body)]
-    (->> #(vector (rand-int w) (rand-int h))
+  (let [body (set body)]
+    (->> #(vector (rand-int board-width) (rand-int board-height))
          repeatedly
          (remove #(or (apples %)
                       (body %)
@@ -72,8 +66,9 @@
 
 (defn update-fn [solution]
   (fn-state [snake apples walls]
-    (let [new-dir (solution (first (:body @snake))
-                            (first @apples))]
+    (let [new-dir (solution (:body @snake)
+                            @apples
+                            @walls)]
       (update-snake snake new-dir apples walls))
     (update-apples snake apples walls)))
 
@@ -117,7 +112,21 @@
      :title "snake"
      :setup (setup-fn num-of-apples walls grow?)
      :draw #(do (update) (draw))
-     :size [800 600])))
+     :size [w h])))
+
+(defn add-adjacent-wall [walls]
+  (let [dir (rand-nth [:up :down :left :right])
+        cell (rand-nth (seq walls))]
+    (conj walls (neib-cell cell dir))))
+
+(defn generate-walls-blot [size]
+  (->> [board-width board-height]
+       (map rand-int)
+       vec
+       hash-set
+       (iterate add-adjacent-wall)
+       (remove #(< (count %) size))
+       first))
 
 
 (defn make-move [snake-pos apple-pos]
@@ -126,5 +135,24 @@
         (< (second snake-pos) (second apple-pos)) :down
         :else :up))
 
-(run 1 #{} false make-move)
+(defn run-not-grow [solution]
+  (run 1 #{} false
+       (fn [[head & _] apples _]
+         (solution head (first apples)))))
 
+(defn run-grow [solution]
+  (run 1 #{} true
+       (fn [snake apples _]
+         (solution snake (first apples)))))
+
+(defn run-many-apples [solution]
+  (run 5 #{} true
+       (fn [snake apples _]
+         (solution snake apples))))
+
+(defn run-with-walls [solution]
+  (let [walls (->> #(generate-walls-blot 20)
+                   (repeatedly 5)
+                   (apply concat)
+                   set)]
+    (run 5 walls true solution)))
