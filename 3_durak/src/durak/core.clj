@@ -1,6 +1,7 @@
 (ns durak.core
   (:use quil.core
-        durak.logic))
+        durak.logic)
+  (:import [java.awt.event KeyEvent]))
 
 (def margin-top 20)
 (def margin-left 200)
@@ -32,7 +33,7 @@
   (fn []
     (smooth)
     (set-state! :images (load-images)
-                :state (init-game player-a player-b))
+                :state (atom (init-game player-a player-b)))
     (frame-rate 10)))
 
 (defn draw-player [player images top]
@@ -73,7 +74,7 @@
   (fn-state [images state]
     (background 200)
     (fill 0)
-    (let [{:keys [players table attacker deck]} state
+    (let [{:keys [players table attacker deck]} @state
           [pl-a pl-b] players]
       (draw-player pl-a images margin-top)
       (draw-player pl-b images (+ margin-top
@@ -83,12 +84,35 @@
       (draw-table table attacker images)
       (draw-deck deck images))))
 
+(def key-pressed
+  (fn-state [state]
+    (cond (= KeyEvent/VK_SPACE (key-code))
+          (do (swap! state next-action)
+              (doseq [[key value] @state]
+                (println key value))
+              (println "\n\n\n\n"))
+          (= KeyEvent/VK_R (key-code))
+          (reset! state (apply init-game (:player-fns @state))))))
+
 (defn run [player-a player-b]
   (let [setup (setup-fn player-a player-b)]
     (sketch
-     :title "durak"
+     :title "Durak"
      :setup setup
      :draw draw
+     :key-pressed key-pressed
      :size [800 600])))
+
+(def simple-bot
+  {:attack
+   (fn [{:keys [table hand tramp]}]
+     (if (empty? table)
+          (first hand)
+          nil))
+   :defend
+   (fn [{:keys [table hand tramp]}]
+     (first (filter #(higher? % (last table) tramp) hand)))})
+
+
 
 
