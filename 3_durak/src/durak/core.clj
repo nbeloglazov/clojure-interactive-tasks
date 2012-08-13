@@ -76,7 +76,7 @@
     (fill 0)
     (let [{:keys [players table attacker deck]} @state
           [pl-a pl-b] players]
-      (draw-player pl-a images margin-top)
+      (draw-player pl-a (constantly (:back images)) margin-top)
       (draw-player pl-b images (+ margin-top
                                   (* 3 card-height)
                                   (- overlap)
@@ -87,10 +87,7 @@
 (def key-pressed
   (fn-state [state]
     (cond (= KeyEvent/VK_SPACE (key-code))
-          (do (swap! state next-action)
-              (doseq [[key value] @state]
-                (println key value))
-              (println "\n\n\n\n"))
+          (do (swap! state next-action))
           (= KeyEvent/VK_R (key-code))
           (reset! state (apply init-game (:player-fns @state))))))
 
@@ -113,6 +110,4 @@
    (fn [{:keys [table hand tramp]}]
      (first (filter #(higher? % (last table) tramp) hand)))})
 
-
-
-
+(def run-game (partial run simple-bot))
