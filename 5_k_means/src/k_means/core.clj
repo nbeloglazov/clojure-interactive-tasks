@@ -17,9 +17,17 @@
        (repeatedly 3)
        (apply color)))
 
+(defn circle-points [[x y] rad n]
+  (let [random (java.util.Random.)
+        dist-fn #(* (.nextGaussian random) 0.3333333 rad)]
+    (repeatedly n #(let [angle (rand (* 2 Math/PI))
+                         dist (dist-fn)]
+                     [(+ x (* (cos angle) dist))
+                      (+ y (* (sin angle) dist))]))))
+
 (def regenerate-points
   (fn-state [points initial-fn]
-    (reset! points (initial-fn))))
+    (reset! points (vec (initial-fn)))))
 
 (def colors (repeatedly random-color))
 
@@ -29,13 +37,13 @@
 
 (defn setup-fn [initial-fn solution]
   (fn []
-   (set-state!
-    :clusters (atom [])
-    :points (atom [])
-    :solution solution
-    :initial-fn initial-fn)
-   (regenerate-points)
-   (recalculate-clusters)))
+    (set-state!
+     :clusters (atom [])
+     :points (atom [])
+     :solution solution
+     :initial-fn initial-fn)
+    (regenerate-points)
+    (recalculate-clusters)))
 
 
 (defn draw-cluster [points color]
@@ -70,12 +78,43 @@
    :key-pressed key-pressed
    :size [w h]))
 
+(defn n-circles [n max-rad min-rad n-points]
+  (letfn [(random-circle []
+            (let [r (+ min-rad (rand-int (- max-rad min-rad)))]
+              [(+ r (rand-int (- w r r)))
+               (+ r (rand-int (- h r r)))
+               r]))
+          (intersects? [[x0 y0 r0]
+                        [x1 y1 r1]]
+            (< (dist x0 y0 x1 y1) (+ r0 r1)))
+          (intersects-any? [circles circle]
+            (some #(intersects? circle %) circles))
+          (add-circle [circles]
+            (->> (repeatedly 100 random-circle)
+                 (remove #(intersects-any? circles %))
+                 (#(nth % 0 (random-circle)))
+                 (conj circles)))
+          (circle-to-points [[x y r]]
+            (circle-points [x y] r n-points))]
+    (->> (nth (iterate add-circle []) n)
+         (map circle-to-points)
+         (apply concat)
+         #_shuffle)))
+
 (def run-empty (partial run #(vector)))
+
+(def run-2-circles (partial run (partial n-circles 2 100 200 30)))
+
+(def run-3-circles (partial run (partial n-circles 3 100 200 30)))
+
+(def run-random-circles (partial run #(n-circles (+ 2 (rand-int 5)) 50 100 30)))
 
 (defn random-points []
   (->> #(vector (rand-int w) (rand-int h))
-       (repeatedly num-of-points)
-       vec))
+       (repeatedly num-of-points)))
 
-(run-empty #(map vector %))
+(defn stupid [points]
+  (map vector points))
+
+
 
