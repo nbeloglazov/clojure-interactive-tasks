@@ -116,7 +116,7 @@
     (if-let [gist (find-gist gist-name github-auth)]
       (let [solutions (map-values #(hash-map :content %2) solutions)]
         (gists/edit-gist (:id gist) {:auth github-auth :files solutions}))
-      (gists/create-gist solutions {:auth github-auth :description gist-name}))))
+      (gists/create-gist solutions {:auth github-auth :description gist-name :public false}))))
 
 (defn update-lesson-2 [github-pass fclj-pass]
   (write-solutions-to-gist
