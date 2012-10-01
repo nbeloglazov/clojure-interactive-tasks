@@ -7,4 +7,5 @@
                  [clj-http "0.5.5"]
                  [org.clojure/data.json "0.1.3"]
                  [org.clojure/data.csv "0.1.2"]
-                 [enlive/enlive "1.0.1"]])
+                 [enlive/enlive "1.0.1"]
+                 [tentacles "0.2.0-beta1"]])

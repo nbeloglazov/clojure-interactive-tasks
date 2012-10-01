@@ -4,11 +4,14 @@
             [clojure.string :as string]
             [clojure.java.io :as io]
             [clj-http.client :as client]
-            [net.cgrand.enlive-html :as html]))
+            [net.cgrand.enlive-html :as html]
+            [tentacles.gists :as gists]))
 
 (def base-url "http://www.4clojure.com/")
 (def problems-file "problems.csv")
 (def solutions-file "solutions_%d.clj")
+(def lesson-1 [1 2 14 15 16 35 36 42 162 166])
+(def lesson-2 [17 18 64 71 24 32 61 50 67 77])
 
 (def users
   (map name
@@ -73,27 +76,54 @@
        (html/select [:.follower-solution])
        (#(map extract-solution %))))
 
-(defn write-solutions [problem solutions]
-  (let [{:keys [description tests]} (get-problem problem)
-        #_description #_(-> description string-to-html html/texts)]
+(defn build-content [problem solutions]
+  (let [{:keys [description tests]} (get-problem problem)]
     (->> (map #(str ";" (:user %) \newline (:solution %) \newline \newline) solutions)
          (string/join \newline)
          (str ";" description \newline
               (string/join \newline tests)
               \newline \newline \newline)
-         (spit (format solutions-file problem)))))
+         (apply str)
+         (hash-map (format solutions-file problem)))))
+
+(defn write-solutions-to-file [problem solutions]
+  (spit (format solutions-file problem) (build-content problem solutions)))
 
 (defn matches? [{:keys [user]} allowed-users]
   (if (empty? allowed-users)
     true
     (some #(.contains user %) allowed-users)))
 
-(defn get-and-write-solutions
+(defn get-solutions-as-file
   ([problem logn password users]
      (->> (login logn password)
           (get-solutions problem)
           (filter #(matches? % users))
-          (write-solutions problem)))
+          (build-content problem)))
   ([problem logn password]
-     (get-and-write-solutions [])))
+     (get-solutions-as-file problem logn password [])))
+
+(defn find-gist [gist-name auth]
+  (->> (gists/user-gists (re-find #"[^:]*" auth) {:auth auth})
+       (filter #(.contains (:description %) gist-name))
+       first))
+
+(defn map-values [f m]
+  (into {} (for [[k v] m] [k (f k v)])))
+
+(defn write-solutions-to-gist [{:keys [problems users github-auth gist-name login-4clj password-4clj]}]
+  (let [solutions (into {} (pmap #(get-solutions-as-file % login-4clj password-4clj users) problems))]
+    (if-let [gist (find-gist gist-name github-auth)]
+      (let [solutions (map-values #(hash-map :content %2) solutions)]
+        (gists/edit-gist (:id gist) {:auth github-auth :files solutions}))
+      (gists/create-gist solutions {:auth github-auth :description gist-name}))))
+
+(defn update-lesson-2 [github-pass fclj-pass]
+  (write-solutions-to-gist
+   {:problems lesson-2
+    :users users
+    :github-auth (format "nbeloglazov:%s" github-pass)
+    :gist-name "Lesson 2"
+    :login-4clj "Nikelandjelo"
+    :password-4clj fclj-pass}))
 
