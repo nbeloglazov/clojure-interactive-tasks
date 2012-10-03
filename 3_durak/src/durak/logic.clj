@@ -116,11 +116,11 @@
         (discard state)
         ;;; Defender has at least 1 card. Attack continues.
         (if-let [card (call-player-fn :attack state)]
-         ;;; Attacker selected card for attack.
-         (do (validate-attack-card card state)
-             (move-to-table card attacker state))
-         ;;; Attacker select no card for attach. End of attack.
-         (discard state)))
+          ;;; Attacker selected card for attack.
+          (do (validate-attack-card card state)
+              (move-to-table card attacker state))
+          ;;; Attacker select no card for attach. End of attack.
+          (discard state)))
      ;;; Defend
      (if-let [card (call-player-fn :defend state)]
        ;;; Defender selected card for defense.

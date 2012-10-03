@@ -3,14 +3,14 @@
 
 
 ;;; Your task is to write bot for playing card game "Durak": http://en.wikipedia.org/wiki/Durak
-;;; Bot plays against another built-in bot (so 2 players).
-;;; Bot is map that contains 2 functions: function to attack and function to defend.
+;;; Bot plays against another built-in bot (2 players).
+;;; Bot is a map that contains 2 functions: function to attack and function to defend.
 ;;; It must have following format: {:attack YOUR_ATTACK_FN  :defend YOUR_DEFEND_FN}
-;;; Attack and defend functions are similar: they both take same arguments and both must return card.
-;;; Attack function is called when your are an attacker and it needs to select 1 card from your hand and put it on the table.
+;;; Attack and defend functions are similar: they both take same arguments and both must return a card.
+;;; Attack function is called when your are an attacker and it should select 1 card from your hand and put it on the table.
 ;;; Note that if it is not the first card in current attack, it must have the same rank as one of the cards on the table.
 ;;; If you return nil it means that you don't want to attack and attack is finished.
-;;; Defend function is called  when your are a defender and it needs to select 1 card from your hand and put it on the table.
+;;; Defend function is called  when your are a defender and it should select 1 card from your hand and put it on the table.
 ;;; If you return nil it means you can't (or don't want to) defend and you take all cards from the table.
 
 ;;; Card is a map with 2 keys: rank and suit.
@@ -50,11 +50,11 @@
 
 ;;; Implement bot that memorizes all cards played in game and use some smarter logic based on probability of opponents cards.
 ;;; Use clojure's atoms or refs to keep data between moves.
-;;; If you've implemented this bot in the first task than you can skip it :)
+;;; If you've implemented this bot in the first task then you can skip it :)
 
 
 
-;;; Implement attack and defencd functions that they ask user input. So human can play.
+;;; Implement attack and defense functions that they ask user input. So human can play.
 ;;; I don't know how to do it, may be some hacks with swing like creating and invoking dialog to ask for user input.
 
 
