@@ -25,7 +25,8 @@
          quadrocube
          pavelfromby
          efimikvitaliy
-         kolina]))
+         kolina
+         nikelandjelo]))
 
 (defn string-to-html [str]
   (->> (.getBytes str)
@@ -94,7 +95,7 @@
 (defn matches? [{:keys [user]} allowed-users]
   (if (empty? allowed-users)
     true
-    (some #(.contains user %) allowed-users)))
+    (some #(.contains (string/lower-case user) %) allowed-users)))
 
 (defn get-solutions-as-file
   ([problem logn password users]
