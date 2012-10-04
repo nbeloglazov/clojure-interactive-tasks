@@ -67,14 +67,16 @@
   {:user (-> (html/select sol [:.solution-username]) first html/text)
    :solution (-> (html/select sol [:pre]) first html/text)})
 
-(defn get-solutions [problem cookies]
-  (-> (client/get
-          (str base-url "/problem/solutions/" problem)
-          {:cookies cookies})
-       :body
-       string-to-html
-       (html/select [:.follower-solution])
-       (#(map extract-solution %))))
+(defn get-solutions [problem name cookies]
+  (let [html (-> (client/get
+                   (str base-url "/problem/solutions/" problem)
+                   {:cookies cookies})
+                 :body
+                 string-to-html)
+        following-solutions (map extract-solution (html/select html [:.follower-solution]))
+        my-solution {:user name
+                     :solution (-> (html/select html [[:pre html/first-of-type]] ) first html/text)}]
+    (cons my-solution following-solutions)))
 
 (defn build-content [problem solutions]
   (let [{:keys [description tests]} (get-problem problem)]
@@ -97,7 +99,7 @@
 (defn get-solutions-as-file
   ([problem logn password users]
      (->> (login logn password)
-          (get-solutions problem)
+          (get-solutions problem logn)
           (filter #(matches? % users))
           (build-content problem)))
   ([problem logn password]
