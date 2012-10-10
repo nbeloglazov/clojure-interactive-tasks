@@ -12,6 +12,7 @@
 (def solutions-file "solutions_%d.clj")
 (def lesson-1 [1 2 14 15 16 35 36 42 162 166])
 (def lesson-2 [17 18 64 71 24 32 61 50 67 77])
+(def lesson-3 [26 28 34 39 83 126 65 69 121 79])
 
 (def users
   (map name
@@ -121,12 +122,18 @@
         (gists/edit-gist (:id gist) {:auth github-auth :files solutions}))
       (gists/create-gist solutions {:auth github-auth :description gist-name :public false}))))
 
-(defn update-lesson-2 [github-pass fclj-pass]
+(defn update-lesson [tasks name github-pass fclj-pass]
   (write-solutions-to-gist
-   {:problems lesson-2
+   {:problems tasks
     :users users
     :github-auth (format "nbeloglazov:%s" github-pass)
-    :gist-name "Lesson 2"
+    :gist-name name
     :login-4clj "Nikelandjelo"
     :password-4clj fclj-pass}))
+
+(defn update-lesson-2 [github-pass fclj-pass]
+  (update-lesson lesson-2 "Lesson 2" github-pass fclj-pass))
+
+(defn update-lesson-3 [github-pass fclj-pass]
+  (update-lesson lesson-3 "Lesson 3" github-pass fclj-pass))
 
