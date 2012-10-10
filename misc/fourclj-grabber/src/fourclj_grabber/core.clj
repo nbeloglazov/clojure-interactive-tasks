@@ -2,6 +2,7 @@
   (:require [clojure.data.json :as json]
             [clojure.data.csv :as csv]
             [clojure.string :as string]
+            [clojure.set :as set]
             [clojure.java.io :as io]
             [clj-http.client :as client]
             [net.cgrand.enlive-html :as html]
@@ -15,19 +16,19 @@
 (def lesson-3 [26 28 34 39 83 126 65 69 121 79])
 
 (def users
-  (map name
-       '[cgrand
-         megaterik
-         kabbi
-         anjenson
-         hlebiksi
-         zayankovsky
-         lanakomar
-         quadrocube
-         pavelfromby
-         efimikvitaliy
-         kolina
-         nikelandjelo]))
+  (set (map name
+        '[cgrand
+          megaterik
+          kabbi
+          anjenson
+          hlebiksi
+          zayankovsky
+          lanakomar
+          quadrocube
+          pavelfromby
+          efimikvitaliy
+          kolina
+          nikelandjelo])))
 
 (defn string-to-html [str]
   (->> (.getBytes str)
@@ -64,9 +65,8 @@
        :cookies))
 
 
-
 (defn extract-solution [sol]
-  {:user (-> (html/select sol [:.solution-username]) first html/text)
+  {:user (-> (html/select sol [:.solution-username]) first html/text string/lower-case (string/replace #"'s solution:" ""))
    :solution (-> (html/select sol [:pre]) first html/text)})
 
 (defn get-solutions [problem name cookies]
@@ -93,19 +93,16 @@
 (defn write-solutions-to-file [problem solutions]
   (spit (format solutions-file problem) (build-content problem solutions)))
 
-(defn matches? [{:keys [user]} allowed-users]
-  (if (empty? allowed-users)
-    true
-    (some #(.contains (string/lower-case user) %) allowed-users)))
+(defn get-solutions-filter [problem logn password users]
+  (->> (login logn password)
+       (get-solutions problem logn)
+       (filter #(users (:user %)))))
 
 (defn get-solutions-as-file
   ([problem logn password users]
-     (->> (login logn password)
-          (get-solutions problem logn)
-          (filter #(matches? % users))
-          (build-content problem)))
+     (build-content problem (get-solutions-filter problem logn password users)))
   ([problem logn password]
-     (get-solutions-as-file problem logn password [])))
+     (get-solutions-as-file problem logn password (fn [_] true))))
 
 (defn find-gist [gist-name auth]
   (->> (gists/user-gists (re-find #"[^:]*" auth) {:auth auth})
@@ -136,4 +133,19 @@
 
 (defn update-lesson-3 [github-pass fclj-pass]
   (update-lesson lesson-3 "Lesson 3" github-pass fclj-pass))
+
+(defn get-scores [fclj-name fclj-pass & task-colls]
+  (letfn [(users-for-problem [problem]
+            (let [users (map :user (get-solutions-filter problem fclj-name fclj-pass users))]
+              (zipmap users (repeat #{problem}))))
+          (map-value [f m]
+            (into {} (for [[k v] m] [k (f v)])))
+          (count-intersections [tasks]
+            (->> (map set task-colls)
+                 (map #(set/intersection % tasks))
+                 (map count)))]
+    (->> (apply concat task-colls)
+         (pmap users-for-problem)
+         (apply merge-with set/union)
+         (map-value count-intersections))))
 
