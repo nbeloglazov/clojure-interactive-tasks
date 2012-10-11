@@ -114,10 +114,12 @@
 
 (defn write-solutions-to-gist [{:keys [problems users github-auth gist-name login-4clj password-4clj]}]
   (let [solutions (into {} (pmap #(get-solutions-as-file % login-4clj password-4clj users) problems))]
-    (if-let [gist (find-gist gist-name github-auth)]
-      (let [solutions (map-values #(hash-map :content %2) solutions)]
-        (gists/edit-gist (:id gist) {:auth github-auth :files solutions}))
-      (gists/create-gist solutions {:auth github-auth :description gist-name :public false}))))
+    (do
+      (if-let [gist (find-gist gist-name github-auth)]
+        (let [solutions (map-values #(hash-map :content %2) solutions)]
+          (gists/edit-gist (:id gist) {:auth github-auth :files solutions}))
+        (gists/create-gist solutions {:auth github-auth :description gist-name :public false}))
+      nil)))
 
 (defn update-lesson [tasks name github-pass fclj-pass]
   (write-solutions-to-gist
@@ -125,7 +127,7 @@
     :users users
     :github-auth (format "nbeloglazov:%s" github-pass)
     :gist-name name
-    :login-4clj "Nikelandjelo"
+    :login-4clj "nikelandjelo"
     :password-4clj fclj-pass}))
 
 (defn update-lesson-2 [github-pass fclj-pass]
