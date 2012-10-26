@@ -28,7 +28,8 @@
           pavelfromby
           efimikvitaliy
           kolina
-          nikelandjelo])))
+          nikelandjelo
+          mashabarashko])))
 
 (defn string-to-html [str]
   (->> (.getBytes str)
