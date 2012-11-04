@@ -15,6 +15,7 @@
 (def lesson-2 [17 18 64 71 24 32 61 50 67 77])
 (def lesson-3 [26 28 34 39 83 126 65 69 121 79])
 (def lesson-6 [23 27 30 33 41 95 107 135 102 158])
+(def lesson-7 [74 106 108 120 146])
 
 (def users
   (set (map name
@@ -141,8 +142,11 @@
 (defn update-lesson-6 [github-pass fclj-pass]
   (update-lesson lesson-6 "Lesson 6" github-pass fclj-pass))
 
+(defn update-lesson-7 [github-pass fclj-pass]
+  (update-lesson lesson-7 "Lesson 7" github-pass fclj-pass))
+
 (defn update-all-lessons [github-pass fclj-pass]
-  (doseq [fns [update-lesson-2 update-lesson-3 update-lesson-6]]
+  (doseq [fns [update-lesson-2 update-lesson-3 update-lesson-6 update-lesson-7]]
     (println "Do!")
     (fns github-pass fclj-pass)))
 
