@@ -49,8 +49,8 @@
 ;(test-second-derivative)
 
 (defn test-complex []
-  "f = 7x^2 + 2x + 5"
-  (let [f '(+ (+ (* 7 (* x x))
+  "f = -7x^2 + 2x + 5"
+  (let [f '(+ (+ (* -7 (* x x))
                  (* 2 x))
               5)]
     (view (expr-plot -5 5 f (derivative f) (derivative (derivative f))))))
