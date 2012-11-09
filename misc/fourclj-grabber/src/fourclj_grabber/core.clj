@@ -11,6 +11,8 @@
 (def base-url "http://www.4clojure.com/")
 (def problems-file "problems.csv")
 (def solutions-file "solutions_%d.clj")
+(def scores-file "scores.clj")
+
 (def lesson-1 [1 2 14 15 16 35 36 42 162 166])
 (def lesson-2 [17 18 64 71 24 32 61 50 67 77])
 (def lesson-3 [26 28 34 39 83 126 65 69 121 79])
@@ -164,4 +166,22 @@
          (pmap users-for-problem)
          (apply merge-with set/union)
          (map-value count-intersections))))
+
+(defn write-scores [fclj-name fclj-pass & task-colls]
+  (let [data (read-string (slurp scores-file))
+        new-scores (apply get-scores fclj-name fclj-pass task-colls)]
+    (->> (conj data [new-scores (java.util.Date.)])
+         prn-str
+         (spit scores-file))))
+
+(defn show-difference-last []
+  (let [all (read-string (slurp scores-file))
+        [latest prev] (map first (reverse all))
+        names (set (concat (keys latest) (keys prev)))]
+    (doseq [name (sort names)]
+      (when (not= (latest name) (prev name))
+        (println name)
+        (println (prev name))
+        (println (latest name))
+        (println \newline)))))
 
