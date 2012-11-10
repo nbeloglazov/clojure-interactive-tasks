@@ -1,6 +1,7 @@
 (ns durak.core
   (:use quil.core
-        durak.logic)
+        durak.logic
+        [clojure.java.io :only (resource)])
   (:import [java.awt.event KeyEvent]))
 
 (def margin-top 20)
@@ -18,16 +19,16 @@
                               [var `(state ~(keyword var))])))
             ~@body)))
 
-(defn find-resource [name]
-  (.. (Thread/currentThread) getContextClassLoader (findResource name)))
-
 (defn card-url [{:keys [rank suit]}]
-  (let [name (str (name suit) "_" rank ".png")]
-    (find-resource name)))
+  (let [name (str (name suit) "_" rank ".png")
+        res (resource name)]
+    (if (nil? res)
+      (throw (IllegalArgumentException. (str "Could not find image " name)))
+      res)))
 
 (defn load-images []
   (let [cards-images (into {} (map #(vector % (load-image (card-url %))) deck))]
-    (assoc cards-images :back (load-image (find-resource "blue_back.png")))))
+    (assoc cards-images :back (load-image (resource "blue_back.png")))))
 
 (defn setup-fn [player-a player-b]
   (fn []
@@ -39,7 +40,7 @@
 (defn draw-player [player images top]
   (doseq [[ind card] (map-indexed vector player)]
     (when-not (nil? card)
-     (image (images card) (+ margin-left (* ind hand-cards-gap)) top))))
+      (image (images card) (+ margin-left (* ind hand-cards-gap)) top))))
 
 (defn draw-table [table attacker images]
   (let [pairs (partition-all 2 table)
