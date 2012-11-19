@@ -4,10 +4,7 @@
   ((n inc) 0))
 
 (defn to-church-num [n]
-  (if (zero? n)
-    (fn [_] identity)
-    (fn [f] (fn [x]
-              (f (((to-church-num (dec n)) f) x))))))
+  (fn [f] (fn [x] (nth (iterate f x) n))))
 
 (defn run-tests [pass? log-result tests]
   (let [check-and-log (fn [test]
@@ -72,4 +69,44 @@
    (fn [result n]
      (printf "%4s  (dec %d) = %d\n" result n (- n 1)))
    [1 2 3 4 5]))
+
+(defn test-sum [sum]
+  (run-tests
+   (fn [n]
+     (= (to-normal-num (sum (to-church-num n)))
+        (apply + (range (inc n)))))
+   (fn [result n]
+     (printf "%4s  (dec %d) = %d\n" result n (apply + (range (inc n)))))
+   [0 1 2 3 4 5]))
+
+
+(defn test-list [{:keys [empty? empty-list cons head tail]}]
+  (letfn [(to-lambda-list [coll]
+            (reduce #((cons %2) %1) empty-list (reverse coll)))
+          (to-vec [lambda-list]
+            (((empty? lambda-list)
+              (delay []))
+             (delay (clojure.core/cons (head lambda-list)
+                                       @(to-vec (tail lambda-list))))))
+          (to-word [result]
+            (if result "  OK" "Fail"))]
+    (let [res [(let [res (((empty? empty-list) true) false)]
+                 (println (to-word res) "(empty? empty-list) must be true")
+                 res)
+               (let [lamdba-list ((cons 42) empty-list)
+                     h (head lamdba-list)
+                     res (= h 42)]
+                 (println (to-word res) "(head (cons 42 empty-list)) = 42")
+                 res)
+               (let [lambda-list ((cons 42) empty-list)
+                     t (tail lambda-list)
+                     res (((empty? t) true) false)]
+                 (println (to-word res) "(empty? (tail (cons 42 empty-list))) must be true")
+                 res)
+               (let [lambda-list (to-lambda-list [1 2 3 4 5])
+                     res (= [1 2 3 4 5] @(to-vec lambda-list))]
+                 (println (to-word res) "converting [1 2 3 4 5] to lambda list and back to clojure vector using passed functions")
+                 res)]
+          passed (count (filter true? res))]
+      (printf "%d/%d passed\n" passed (count res)))))
 
