@@ -27,13 +27,13 @@
 ;;; {:hand  [{:rank 6, :suit :clubs}
 ;;;          {:rank 8, :suit :hearts}],
 ;;;  :table [{:rank 6, :suite :hearts}],
-;;;  :tramp :clubs}
+;;;  :trump :clubs}
 ;;; Hand is a sequence of cards in your hand.
 ;;; Table is a sequence of cards already on table.
 ;;; If you are an attacker and it's start of an attack then table will be empty.
 ;;; If your are a defender then table will be non-empty and your need to beat last card from the table.
 ;;; Cards on the table can be represented like: attack  - defense - attack - defense - attack. Odd cards are attack, even cards are defense.
-;;; Tramp is tramp suit of the game.
+;;; Trump is trump suit of the game.
 
 ;;; To test your solution call (run-game YOUR_SOLUTION)
 ;;; Your bot is the player in the lower part of screen (cards a visible to your).

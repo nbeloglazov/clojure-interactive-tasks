@@ -61,12 +61,12 @@
                    card-height)
                 2))
         x (/ (- margin-left card-height card-width) 2)
-        y-tramp (+ y-deck (/ (- card-height card-width) 2))]
-    (when-let [tramp (last deck)]
+        y-trump (+ y-deck (/ (- card-height card-width) 2))]
+    (when-let [trump (last deck)]
       (push-matrix)
-      (translate x y-tramp)
+      (translate x y-trump)
       (rotate (/ Math/PI -2))
-      (image (images tramp) (- card-width) (/ card-width 2))
+      (image (images trump) (- card-width) (/ card-width 2))
       (pop-matrix)
       (dotimes [ind (dec (count deck))]
         (image (images :back) x (- y-deck (* ind 2)))))))
@@ -103,12 +103,12 @@
 
 (def simple-bot
   {:attack
-   (fn [{:keys [table hand tramp]}]
+   (fn [{:keys [table hand trump]}]
      (if (empty? table)
           (first hand)
           nil))
    :defend
-   (fn [{:keys [table hand tramp]}]
-     (first (filter #(higher? % (last table) tramp) hand)))})
+   (fn [{:keys [table hand trump]}]
+     (first (filter #(higher? % (last table) trump) hand)))})
 
 (def run-game (partial run simple-bot))

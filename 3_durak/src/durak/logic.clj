@@ -18,10 +18,10 @@
 
 (defn higher? [{suit-a :suit rank-a :rank}
                {suit-b :suit rank-b :rank}
-               tramp]
+               trump]
   (if (= suit-a suit-b)
     (> rank-a rank-b)
-    (= suit-a tramp)))
+    (= suit-a trump)))
 
 (defn draw-cards [{:keys [players deck attacker] :as state}]
   (let [players (mapv #(remove nil? %) players)
@@ -37,7 +37,7 @@
     (draw-cards {:player-fns [player-a player-b]
                  :table []
                  :deck deck
-                 :tramp (:suit (last deck))
+                 :trump (:suit (last deck))
                  :attacker (rand-int 2)
                  :players [[] []]})))
 
@@ -58,12 +58,12 @@
 (defn contains-rank? [table {:keys [rank]}]
   (some #(= rank (:rank %)) table))
 
-(defn call-player-fn [type {:keys [attacker players player-fns table tramp]}]
+(defn call-player-fn [type {:keys [attacker players player-fns table trump]}]
   (let [player-ind (if (= type :attack) attacker (op attacker))]
     ((get-in player-fns [player-ind type])
      {:table table
       :hand (remove nil? (players player-ind))
-      :tramp tramp})))
+      :trump trump})))
 
 (defn throw-iae [& args]
   (throw (IllegalArgumentException. (apply str args))))
@@ -81,13 +81,13 @@
          ". Attacker doesn't have such card: "
          (players attacker))))
 
-(defn validate-defend-card [card {:keys [attacker players table tramp]}]
+(defn validate-defend-card [card {:keys [attacker players table trump]}]
   (when (every? #(not= card %) (players (op attacker)))
     (throw-iae "Can't defend with "
                card
                ". Defender doesn't have such card: "
                (players (op attacker))))
-  (when-not (higher? card (last table) tramp)
+  (when-not (higher? card (last table) trump)
     (throw-iae "Can't defend with "
                card
                ". It's lower than attack card: "
