@@ -51,7 +51,7 @@
    (fn [[a b]]
      (= (to-normal-num
          ((pow (to-church-num a)) (to-church-num b)))
-        (Math/pow a b)))
+        (int (Math/pow a b))))
    (fn [result [a b]]
      (printf "%4s  %d ^ %d = %d\n" result a b (int (Math/pow a b))))
    [[1 0]
