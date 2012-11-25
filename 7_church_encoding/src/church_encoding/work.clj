@@ -73,8 +73,6 @@
 (test-sum sum)
 
 
-
-;;; Additional task.
 ;;; Implement set of function to create/manipulate lists.
 ;;; Your need to implement following functions:
 ;;; empty? - checks if list is empty, returns true or false. see church booleans http://en.wikipedia.org/wiki/Church_encoding#Church_booleans
@@ -111,3 +109,19 @@
 
 
 
+;;; Additional task.
+;;; Implement map and reduce functions for lambda lists.
+;;; map takes 2 arguments: function and list
+;;; reduce takes 3 arguments: function, init value and list
+
+(def map :YOUR_IMPLEMENTATION_HERE)
+
+(def reduce :YOUR_IMPLEMENTATION_HERE)
+
+(test-map-reduce {:empty? empty?
+                  :empty-list empty-list
+                  :head head
+                  :tail tail
+                  :cons cons
+                  :map map
+                  :reduce reduce})

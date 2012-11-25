@@ -110,3 +110,30 @@
           passed (count (filter true? res))]
       (printf "%d/%d passed\n" passed (count res)))))
 
+(defn test-map-reduce [{:keys [empty? empty-list cons head tail map reduce]}]
+  (letfn [(to-lambda-list [coll]
+            (clojure.core/reduce #((cons %2) %1) empty-list (reverse coll)))
+          (to-vec [lambda-list]
+            (((empty? lambda-list)
+              (delay []))
+             (delay (clojure.core/cons (head lambda-list)
+                                       @(to-vec (tail lambda-list))))))
+          (to-word [result]
+            (if result "  OK" "Fail"))]
+    (let [l (to-lambda-list [1 2 3 4 5])
+          res [(let [res-v @(to-vec ((map #(* % %)) l))
+                     res (= [1 4 9 16 25] res-v)]
+                 (println (to-word res) "(map square [1 2 3 4 5]) must [1 4 9 16 25]")
+                 (when-not res
+                   (println "     Got" res-v))
+                 res)
+               (let [mult (fn [a] (fn [b] (* a b)))
+                     res-v (((reduce mult) 1) l)
+                     res (= res-v 120)]
+                 (println (to-word res) "(reduce * 1 [1 2 3 4 5]) must be 120")
+                 (when-not res
+                   (println "     Got" res-v))
+                 res)]
+          passed (count (filter true? res))]
+      (printf "%d/%d passed\n" passed (count res)))))
+
