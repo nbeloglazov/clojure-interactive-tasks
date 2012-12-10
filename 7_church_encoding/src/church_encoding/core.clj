@@ -15,7 +15,7 @@
                     (map check-and-log)
                     (filter true?)
                     count)]
-    (printf "%d/%d passed" passed (count tests))))
+    (printf "%d/%d passed\n" passed (count tests))))
 
 (defn test-plus [plus]
   (run-tests
@@ -76,7 +76,7 @@
      (= (to-normal-num (sum (to-church-num n)))
         (apply + (range (inc n)))))
    (fn [result n]
-     (printf "%4s  (dec %d) = %d\n" result n (apply + (range (inc n)))))
+     (printf "%4s  (sum %d) = %d\n" result n (apply + (range (inc n)))))
    [0 1 2 3 4 5]))
 
 

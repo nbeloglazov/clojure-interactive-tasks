@@ -6,7 +6,7 @@
 ;;; You can use utility function to-church-num and to-normal-num to convert normal to church and church to normal:
 ;;; Note that to-church-num returns function that takes 1 argument (f)
 ;;; and returns function that takes 1 argument (x) that calculates (f (f ... (f x)...))
-;;; All functions in this task must 1 argument functions that return other functions.
+;;; All functions in this task must be 1 argument functions that return other functions.
 
 ;;; Example:
 
