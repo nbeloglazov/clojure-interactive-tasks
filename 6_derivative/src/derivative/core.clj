@@ -34,22 +34,26 @@
 ;;; Tests.
 ;;; Uncomment and try every function.
 
+;;; f = x^2
 (defn test-simple []
-  "f = x^2"
   (let [f '(* x x)]
     (view (expr-plot -10 10 f (derivative f)))))
 
 ;(test-simple)
 
+
+
+;;; f = x^2
 (defn test-second-derivative []
-  "f = x^2"
   (let [f '(* x x)]
     (view (expr-plot -10 10 f (derivative f) (derivative (derivative f))))))
 
 ;(test-second-derivative)
 
+
+
+;;; f = -7x^2 + 2x + 5
 (defn test-complex []
-  "f = -7x^2 + 2x + 5"
   (let [f '(+ (+ (* -7 (* x x))
                  (* 2 x))
               5)]
@@ -57,23 +61,29 @@
 
 ;(test-complex)
 
+
+
+;;; f = 1/(1 + x^2)
 (defn test-division []
-  "f = 1/(1 + x^2"
   (let [f '(/ 1 (+ (* x x)
                    1))]
     (view (expr-plot -4 4 f (derivative f)))))
 
 ;(test-division)
 
+
+
+;;; f = sin(2x)
 (defn test-trigonometry []
-  "f = sin(2x)"
   (let [f '(sin (* 2 x))]
     (view (expr-plot (- Math/PI) Math/PI  f (derivative f) (derivative (derivative f))))))
 
 ;(test-trigonometry)
 
+
+
+;;; f = log(1 + x^2)
 (defn test-logarithm []
-  "f = log(1 + x^2)"
   (let [f '(log (+ 1 (* x x)))]
     (view (expr-plot -4 4 f (derivative f)))))
 

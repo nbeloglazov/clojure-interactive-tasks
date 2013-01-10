@@ -1,13 +1,3 @@
-# church-encoding
+Implement arithmetic in lambda calculus, recursion, lists. 
 
-A Clojure library designed to ... well, that part is up to you.
-
-## Usage
-
-FIXME
-
-## License
-
-Copyright © 2012 FIXME
-
-Distributed under the Eclipse Public License, the same as Clojure.
+[Detailed description and work file](https://github.com/nbeloglazov/clojure-interactive-tasks/blob/master/7_church_encoding/src/church_encoding/work.clj)
