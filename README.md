@@ -1,4 +1,4 @@
-Set of animated tasks to be solved by implementing clojure functions.  
+This repo is a collection of interactive tasks created to help you practise clojure. Interactive task is clojure project that contains some exercises. Your solutions are visualized so it is more fun to solve. Some tasks require math and algorithms. Check tasks below to see screenshots.
 
 1. Install java and leiningen if you don't have them.
 2. Choose task (any folder except `misc`).
