@@ -78,7 +78,7 @@
    :key-pressed key-pressed
    :size [w h]))
 
-(defn n-circles [n max-rad min-rad n-points]
+(defn n-clusters [n max-rad min-rad n-points]
   (letfn [(random-circle []
             (let [r (+ min-rad (rand-int (- max-rad min-rad)))]
               [(+ r (rand-int (- w r r)))
@@ -87,13 +87,13 @@
           (intersects? [[x0 y0 r0]
                         [x1 y1 r1]]
             (< (dist x0 y0 x1 y1) (+ r0 r1)))
-          (intersects-any? [circles circle]
-            (some #(intersects? circle %) circles))
-          (add-circle [circles]
+          (intersects-any? [clusters circle]
+            (some #(intersects? circle %) clusters))
+          (add-circle [clusters]
             (->> (repeatedly 100 random-circle)
-                 (remove #(intersects-any? circles %))
+                 (remove #(intersects-any? clusters %))
                  (#(nth % 0 (random-circle)))
-                 (conj circles)))
+                 (conj clusters)))
           (circle-to-points [[x y r]]
             (circle-points [x y] r n-points))]
     (->> (nth (iterate add-circle []) n)
@@ -103,11 +103,11 @@
 
 (def run-empty (partial run #(vector)))
 
-(def run-2-circles (partial run (partial n-circles 2 100 200 30)))
+(def run-2-clusters (partial run (partial n-clusters 2 100 200 30)))
 
-(def run-3-circles (partial run (partial n-circles 3 100 200 30)))
+(def run-3-clusters (partial run (partial n-clusters 3 100 200 30)))
 
-(def run-random-circles (partial run #(n-circles (+ 2 (rand-int 5)) 50 100 30)))
+(def run-random-clusters (partial run #(n-clusters (+ 2 (rand-int 5)) 50 100 30)))
 
 (defn random-points []
   (->> #(vector (rand-int w) (rand-int h))
