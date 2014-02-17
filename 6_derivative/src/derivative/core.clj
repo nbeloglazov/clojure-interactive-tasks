@@ -1,32 +1,37 @@
 (ns derivative.core
-  (:use [incanter.charts :only (add-function function-plot)]
-        [incanter.core :only (view sin cos log)]))
+  (:require [incanter.charts :refer [add-function function-plot]]
+            [incanter.core :refer [view sin cos log]]))
 
+;;; Helper function. Ignore it..
 (defn functions-plot [min-x max-x f & fns]
   (reduce #(add-function % %2 min-x max-x)
           (function-plot f min-x max-x)
           fns))
 
+;;; Helper variable. Ignore it.
 (def ^:dynamic x)
 
+;;; Helper function. Ignore it.
 (defn calc-expr [expr x-value]
   (binding [x x-value]
     (eval expr)))
 
+;;; Helper function. Ignore it.
 (defn expr-plot [min-x max-x & fns]
   (apply functions-plot min-x max-x (map #(partial calc-expr %) fns)))
 
 
-
 ;;; Task is to implement derivative function.
 ;;; It takes expression - valid clojure form like (+ x x) or (* 5 (+ x (* 7 x))) and returns derivative of this expression.
-;;; All functions in expression are binary or unary, so (* x x x) is not allowed. (* (* x x) x) will be passed instead.
+;;; All functions in expression are binary or unary, so (* x x x) is not allowed, it should be written as follows: (* (* x x) x)
 ;;; derivative should support following functions: +, -, *, / - binary, sin, cos, log - unary.
 ;;; It must return valid clojure expression.
 ;;; Examples:
 ;;; (derivative '(+ x x)) => 2 or '(+ 1 1)
 ;;; (derivative '(sin (* 2 x))) => (* 2 (cos (* 2 x))) or it's equilavent.
 
+; Change this function so it calculates derivative.
+; Currently it just returns given expression.
 (defn derivative [expr]
   expr)
 
@@ -88,3 +93,4 @@
     (view (expr-plot -4 4 f (derivative f)))))
 
 ;(test-logarithm)
+p
