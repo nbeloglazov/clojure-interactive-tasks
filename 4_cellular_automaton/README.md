@@ -1,4 +1,4 @@
-Implement generic cellular automaton simulator that can supports arbitrary rules and supports user interaction. 
+Implement generic cellular automaton simulator that supports arbitrary rules and user interaction.
 
 [Detailed description and work file](https://github.com/nbeloglazov/clojure-interactive-tasks/blob/master/4_cellular_automaton/src/cellular_automaton/work.clj)
 
