@@ -1,12 +1,12 @@
 (ns church-encoding.work
   (:use [church-encoding.core]))
 
-;;; Task is to implement arithmetic on Church numerals.
+;;; Task is to implement arithmetic for Church numerals.
 ;;; Check this page: http://en.wikipedia.org/wiki/Church_encoding
-;;; You can use utility function to-church-num and to-normal-num to convert normal to church and church to normal:
-;;; Note that to-church-num returns function that takes 1 argument (f)
-;;; and returns function that takes 1 argument (x) that calculates (f (f ... (f x)...))
-;;; All functions in this task must be 1 argument functions that return other functions.
+;;; You can use utility function to-church-num and to-normal-num to convert regular number to church and church to regular:
+;;; Note that to-church-num returns function that takes single argument f
+;;; and returns function that takes single argument x that calculates (f (f ... (f x)...))
+;;; All functions in this task must be single argument functions that return other functions.
 
 ;;; Example:
 
