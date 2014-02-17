@@ -1,6 +1,6 @@
-Calculate angle shot and hit target.
+Calculate fire angle and hit target.
 
-[Detailed description and work file](https://github.com/nbeloglazov/clojure-interactive-tasks/blob/master/1_artillery/src/artillery/work.clj)
+[Detailed description and work file.](https://github.com/nbeloglazov/clojure-interactive-tasks/blob/master/1_artillery/src/artillery/work.clj)
 
 Screenshots:
 

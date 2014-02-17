@@ -1,5 +1,5 @@
 (ns artillery.core
-  (:use quil.core))
+  (:require [quil.core :refer :all]))
 
 (def w 800)
 (def h 600)
