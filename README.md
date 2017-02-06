@@ -1,4 +1,4 @@
-This is a collection of interactive tasks created to help you practise clojure. Single interactive task is a clojure project that contains some exercises, you solve them and check. There is no automatic checking system, you check it manually. Solutions are visualised so you can look at it and decide whether it good or not by yourself. Some tasks contain math and algorithms problems. Check tasks below to see screenshot examples.
+Small collection of interactive problems to practice clojure. Each problem is a clojure project that contains core.clj file with description of a problem and you need to implement your solution there. There is no automatic checking system, you check it manually. Solutions are visualised so you can look at it and decide whether it's good or not. Some tasks contain math and algorithms problems. Check tasks below to see screenshot examples.
 
 **Instructions**
 
